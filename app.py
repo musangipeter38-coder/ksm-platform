@@ -1,23 +1,28 @@
 import os
+from dotenv import load_dotenv
+load_dotenv()
+
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-app.config["SECRET_KEY"] = "change-this-later-to-something-random"
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///ksm.db"
+app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "change-this-later-to-something-random")
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///ksm.db")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 CHILD_UPLOAD_FOLDER = os.path.join("static", "uploads", "children")
 SECTION_UPLOAD_FOLDER = os.path.join("static", "uploads", "sections")
 DIRECTOR_UPLOAD_FOLDER = os.path.join("static", "uploads", "director")
+SITE_UPLOAD_FOLDER = os.path.join("static", "uploads", "site")
 ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
 app.config["CHILD_UPLOAD_FOLDER"] = CHILD_UPLOAD_FOLDER
 app.config["SECTION_UPLOAD_FOLDER"] = SECTION_UPLOAD_FOLDER
 app.config["DIRECTOR_UPLOAD_FOLDER"] = DIRECTOR_UPLOAD_FOLDER
+app.config["SITE_UPLOAD_FOLDER"] = SITE_UPLOAD_FOLDER
 
-from database import db, bcrypt, User, Child, Donation, PrayerRequest, SectionPhoto, DirectorInfo
+from database import db, bcrypt, User, Child, Donation, PrayerRequest, SectionPhoto, DirectorInfo, SiteSettings
 db.init_app(app)
 bcrypt.init_app(app)
 
@@ -35,6 +40,12 @@ def load_user(user_id):
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@app.context_processor
+def inject_site_settings():
+    settings = SiteSettings.query.first()
+    return dict(site_settings=settings)
 
 
 SECTION_LABELS = {
@@ -220,6 +231,7 @@ def dashboard():
         donations = Donation.query.order_by(Donation.created_at.desc()).limit(15).all()
         section_photos = SectionPhoto.query.order_by(SectionPhoto.created_at.desc()).all()
         director = DirectorInfo.query.first()
+        settings = SiteSettings.query.first()
         return render_template(
             "dashboard.html",
             children=children,
@@ -228,6 +240,7 @@ def dashboard():
             section_photos=section_photos,
             section_labels=SECTION_LABELS,
             director=director,
+            settings=settings,
         )
     return render_template("dashboard.html")
 
@@ -315,6 +328,19 @@ def add_section_photo():
     return redirect(url_for("dashboard"))
 
 
+@app.route("/dashboard/edit-caption/<int:photo_id>", methods=["POST"])
+@login_required
+def edit_caption(photo_id):
+    if not current_user.is_admin():
+        return redirect(url_for("dashboard"))
+
+    photo = SectionPhoto.query.get_or_404(photo_id)
+    photo.caption = request.form.get("caption", "").strip()
+    db.session.commit()
+    flash("Caption updated.")
+    return redirect(url_for("dashboard"))
+
+
 @app.route("/dashboard/delete-section-photo/<int:photo_id>", methods=["POST"])
 @login_required
 def delete_section_photo(photo_id):
@@ -358,6 +384,31 @@ def update_director():
 
     db.session.commit()
     flash("Director info updated.")
+    return redirect(url_for("dashboard"))
+
+
+@app.route("/dashboard/update-logo", methods=["POST"])
+@login_required
+def update_logo():
+    if not current_user.is_admin():
+        return redirect(url_for("dashboard"))
+
+    photo = request.files.get("logo")
+    settings = SiteSettings.query.first()
+    if not settings:
+        settings = SiteSettings()
+        db.session.add(settings)
+
+    if photo and photo.filename and allowed_file(photo.filename):
+        filename = secure_filename(f"logo_{photo.filename}".replace(" ", "_"))
+        os.makedirs(app.config["SITE_UPLOAD_FOLDER"], exist_ok=True)
+        photo.save(os.path.join(app.config["SITE_UPLOAD_FOLDER"], filename))
+        settings.logo_filename = filename
+        db.session.commit()
+        flash("Logo updated.")
+    else:
+        flash("Please choose a valid image.")
+
     return redirect(url_for("dashboard"))
 
 

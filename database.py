@@ -84,3 +84,11 @@ class DirectorInfo(db.Model):
     bio = db.Column(db.Text)
     photo_filename = db.Column(db.String(200))
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class SiteSettings(db.Model):
+    __tablename__ = "site_settings"
+
+    id = db.Column(db.Integer, primary_key=True)
+    logo_filename = db.Column(db.String(200))
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)

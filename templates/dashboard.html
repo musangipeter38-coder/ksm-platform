@@ -17,6 +17,18 @@
     {% if current_user.is_admin() %}
 
     <div class="dash-block">
+        <h2>Site Logo</h2>
+        {% if settings and settings.logo_filename %}
+        <img src="{{ url_for('static', filename='uploads/site/' + settings.logo_filename) }}" class="director-photo" alt="Current logo" style="margin-bottom:15px;">
+        {% endif %}
+        <form class="prayer-form" action="/dashboard/update-logo" method="POST" enctype="multipart/form-data">
+            <label class="checkbox-label">Upload a new logo (replaces the one in the navbar site-wide):</label>
+            <input type="file" name="logo" accept="image/*" required>
+            <button type="submit" class="sponsor-btn">Update Logo</button>
+        </form>
+    </div>
+
+    <div class="dash-block">
         <h2>Director Info (Home Page)</h2>
         {% if director and director.photo_filename %}
         <img src="{{ url_for('static', filename='uploads/director/' + director.photo_filename) }}" class="director-photo" alt="Current director photo" style="margin-bottom:15px;">
@@ -104,8 +116,13 @@
             <div class="child-card">
                 <img src="{{ url_for('static', filename='uploads/sections/' + photo.filename) }}" class="child-photo" alt="{{ photo.caption }}">
                 <p style="font-size:0.85rem; color:#6faf88;">{{ section_labels[photo.section] }}</p>
-                {% if photo.caption %}<p>{{ photo.caption }}</p>{% endif %}
-                <form action="/dashboard/delete-section-photo/{{ photo.id }}" method="POST">
+
+                <form action="/dashboard/edit-caption/{{ photo.id }}" method="POST" style="display:flex; gap:6px; margin-top:8px;">
+                    <input type="text" name="caption" value="{{ photo.caption or '' }}" placeholder="Add a caption..." style="flex:1; background: rgba(46,204,113,0.05); border: 1px solid rgba(46,204,113,0.3); border-radius: 6px; padding: 8px; color: #eafff2; font-size: 0.85rem;">
+                    <button type="submit" class="mini-btn approve">Save</button>
+                </form>
+
+                <form action="/dashboard/delete-section-photo/{{ photo.id }}" method="POST" style="margin-top:6px;">
                     <button type="submit" class="mini-btn delete">Delete</button>
                 </form>
             </div>
