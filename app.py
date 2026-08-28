@@ -1,25 +1,31 @@
 import os
 from flask import Flask, render_template, request, redirect, url_for, flash
-from flask_sqlalchemy import SQLAlchemy
-from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
+from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from flask_bcrypt import Bcrypt
 from werkzeug.utils import secure_filename
 from dotenv import load_dotenv
 import cloudinary
 import cloudinary.uploader
 
-# Load environment variables
+# Import db and models together from database module
+from database import db, User, Child, Donation, PrayerRequest, SectionPhoto, DirectorInfo, SiteSettings
+
 load_dotenv()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'ksm-super-secret-key-2026-change-later')
 
-# Configure database
 db_url = os.environ.get('DATABASE_URL')
 if db_url and db_url.startswith("postgres://"):
     db_url = db_url.replace("postgres://", "postgresql://", 1)
 app.config['SQLALCHEMY_DATABASE_URI'] = db_url or 'sqlite:///ksm.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# Initialize extensions with app
+db.init_app(app)
+bcrypt = Bcrypt(app)
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
 
 # Configure Cloudinary
 cloudinary.config(
@@ -28,12 +34,6 @@ cloudinary.config(
     api_secret=os.environ.get('CLOUDINARY_API_SECRET')
 )
 
-db = SQLAlchemy(app)
-bcrypt = Bcrypt(app)
-login_manager = LoginManager(app)
-login_manager.login_view = 'login'
-
-# Helper function for image uploads
 def upload_image_to_cloudinary(file_storage, folder_name):
     if not file_storage or file_storage.filename == '':
         return None
@@ -43,9 +43,6 @@ def upload_image_to_cloudinary(file_storage, folder_name):
     except Exception as e:
         print(f"Cloudinary upload error: {e}")
         return None
-
-# Import models
-from database import User, Child, Donation, PrayerRequest, SectionPhoto, DirectorInfo, SiteSettings
 
 @login_manager.user_loader
 def load_user(user_id):
