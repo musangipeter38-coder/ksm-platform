@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Prayer Wall — KSM{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <h1>Prayer Wall</h1>
+    <p class="lead">
+        Share a prayer request with our community, or lift up someone
+        else's need in prayer. Every request submitted here is reviewed
+        before it appears publicly.
+    </p>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <p class="flash-success">{{ messages[0] }}</p>
+      {% endif %}
+    {% endwith %}
+
+    <form class="prayer-form" action="/prayer" method="POST">
+        <input type="text" name="name" placeholder="Your name (optional)">
+        <textarea name="message" rows="4" placeholder="Write your prayer request..." required></textarea>
+        <label class="checkbox-label">
+            <input type="checkbox" name="is_public" checked>
+            Allow this request to be shown publicly on the Prayer Wall
+        </label>
+        <button type="submit" class="sponsor-btn">Submit Prayer Request</button>
+    </form>
+
+    <div class="prayer-wall">
+        <h2>Recent Requests</h2>
+
+        {% for req in prayers %}
+        <div class="prayer-card">
+            <p>{{ req.message }}</p>
+            <span class="prayer-author">— {{ req.name }}</span>
+        </div>
+        {% endfor %}
+
+        {% if not prayers %}
+            <p class="muted">No public prayer requests yet — be the first to share one.</p>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}

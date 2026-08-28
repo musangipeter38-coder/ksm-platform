@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Kenya Sunbeam Ministries{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="floating-bg">
+        <div class="orb orb1"></div>
+        <div class="orb orb2"></div>
+        <div class="orb orb3"></div>
+    </div>
+
+    <nav class="navbar">
+        <a href="/" class="logo-link">
+            <img src="{{ url_for('static', filename='images/baj.jpg') }}" alt="Kenya Sunbeam Ministries" class="logo-img">
+            <div class="wordmark">
+                <span class="wm-kenya">KENYA</span>
+                <span class="wm-sunbeam">SUNBEAM</span>
+                <span class="wm-ministry">MINISTRY</span>
+            </div>
+        </a>
+        <ul class="nav-links">
+            <li><a href="/">Home</a></li>
+            <li class="dropdown">
+                <a href="/about">About ▾</a>
+                <ul class="dropdown-menu">
+                    <li><a href="/about/childrens-home">Children's Home</a></li>
+                    <li><a href="/about/rainbow-academy">Rainbow Academy</a></li>
+                    <li><a href="/about/bible-school">Bible School & Church</a></li>
+                    <li><a href="/about/sunbeam-farm">Sunbeam Farm</a></li>
+                </ul>
+            </li>
+            <li><a href="/sponsorship">Sponsor a Child</a></li>
+            <li><a href="/prayer">Prayer Wall</a></li>
+            {% if current_user.is_authenticated %}
+                <li><a href="/dashboard">Dashboard</a></li>
+            {% endif %}
+            <li><a href="/give" class="give-btn">Give</a></li>
+        </ul>
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer>
+        <p>© Kenya Sunbeam Ministries — Teso District, Western Kenya
+            <a href="/login" class="admin-dot" title="">•</a>
+        </p>
+    </footer>
+
+</body>
+</html>

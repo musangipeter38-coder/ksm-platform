@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}{{ section_label }} Gallery — KSM{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <h1>{{ section_label }} Gallery</h1>
+    <p class="lead">Every photo and update shared from {{ section_label }}.</p>
+
+    {% if photos %}
+    <div class="gallery-grid">
+        {% for photo in photos %}
+        <div class="gallery-item">
+            <img src="{{ url_for('static', filename='uploads/sections/' + photo.filename) }}" class="gallery-photo" alt="{{ photo.caption }}">
+            {% if photo.caption %}<p class="gallery-caption">{{ photo.caption }}</p>{% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="muted">No photos posted yet — check back soon.</p>
+    {% endif %}
+</section>
+{% endblock %}

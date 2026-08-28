@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Sponsor a Child — KSM{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <h1>Sponsor a Child</h1>
+    <p class="lead">
+        Every child at Sunbeam Children's Home deserves a chance to grow up
+        cared for, educated, and loved. Sponsoring a child directly supports
+        their food, schooling at Rainbow Academy, and daily needs.
+    </p>
+
+    <div class="children-grid">
+        {% for child in children %}
+        <div class="child-card">
+            {% if child.photo_filename %}
+                <img src="{{ url_for('static', filename='uploads/children/' + child.photo_filename) }}" class="child-photo" alt="{{ child.name }}">
+            {% else %}
+                <div class="child-photo-placeholder">Photo coming soon</div>
+            {% endif %}
+            <h3>{{ child.name }}, age {{ child.age }}</h3>
+            <p>{{ child.story }}</p>
+            {% if child.is_sponsored %}
+                <span class="sponsor-status sponsored">Sponsored</span>
+            {% else %}
+                <span class="sponsor-status available">Needs a sponsor · KES {{ child.monthly_need }}/month</span>
+                <a href="/give" class="sponsor-btn">Sponsor {{ child.name }}</a>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    {% if not children %}
+        <p class="muted">No children listed yet — check back soon.</p>
+    {% endif %}
+</section>
+{% endblock %}

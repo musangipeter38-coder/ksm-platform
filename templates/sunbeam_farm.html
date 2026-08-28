@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Sunbeam Farm — KSM{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <h1>Sunbeam Farm</h1>
+    <p class="lead">
+        Sunbeam Farm is KSM's path toward greater self-sufficiency —
+        raising animals and growing food that helps sustain the children's
+        home, the school, and the wider community.
+    </p>
+
+    <div class="story-block">
+        <h2>Working Toward Self-Sufficiency</h2>
+        <p>
+            Rather than relying only on outside support, KSM has developed
+            a working farm with cows, goats, and chickens, alongside crops
+            of fruit, vegetables, grain, and oil. This reduces the ministry's
+            dependence on donations for daily needs and teaches practical
+            skills to the young people who grow up here.
+        </p>
+    </div>
+
+    <div class="story-block">
+        <h2>What the Farm Supports</h2>
+        <ul class="ksm-list">
+            <li>Daily food for children at the home and school</li>
+            <li>Practical agricultural skills for young people</li>
+            <li>Reduced dependence on outside food donations over time</li>
+            <li>A model of sustainability the wider community can learn from</li>
+        </ul>
+    </div>
+
+    <div class="section-photos">
+        <h2>Photos & Updates</h2>
+
+        {% if photos %}
+        <div class="section-slider">
+            <div class="slider-track" id="sliderTrack">
+                {% for photo in photos %}
+                <div class="slide">
+                    <img src="{{ url_for('static', filename='uploads/sections/' + photo.filename) }}" alt="{{ photo.caption }}">
+                    {% if photo.caption %}<p class="slide-caption">{{ photo.caption }}</p>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            <button class="slider-btn prev" onclick="moveSlide(-1)">&#10094;</button>
+            <button class="slider-btn next" onclick="moveSlide(1)">&#10095;</button>
+        </div>
+        {% else %}
+        <p class="muted">Photos from this section will appear here — coming soon.</p>
+        {% endif %}
+
+        <a href="/gallery/sunbeam_farm" class="sponsor-btn gallery-btn">View Gallery</a>
+    </div>
+</section>
+
+<script>
+let currentSlide = 0;
+let slideTimer;
+
+function showSlide(index) {
+    const slides = document.querySelectorAll('#sliderTrack .slide');
+    if (slides.length === 0) return;
+    if (index >= slides.length) currentSlide = 0;
+    else if (index < 0) currentSlide = slides.length - 1;
+    else currentSlide = index;
+    document.getElementById('sliderTrack').style.transform = `translateX(-${currentSlide * 100}%)`;
+}
+
+function moveSlide(direction) {
+    showSlide(currentSlide + direction);
+    resetTimer();
+}
+
+function resetTimer() {
+    clearInterval(slideTimer);
+    slideTimer = setInterval(() => moveSlide(1), 3000);
+}
+
+resetTimer();
+</script>
+{% endblock %}

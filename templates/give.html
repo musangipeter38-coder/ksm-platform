@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Give — Kenya Sunbeam Ministries{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <h1>Give</h1>
+    <p class="lead">
+        Your gift directly supports the children, the school, the church,
+        and the farm at Kenya Sunbeam Ministries. Every contribution,
+        however small, changes a life here.
+    </p>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <p class="flash-success">{{ messages[0] }}</p>
+      {% endif %}
+    {% endwith %}
+
+    <form class="give-form" action="/give" method="POST">
+
+        <div class="purpose-select">
+            <label class="purpose-option">
+                <input type="radio" name="purpose" value="general" checked>
+                <span>General Fund</span>
+            </label>
+            <label class="purpose-option">
+                <input type="radio" name="purpose" value="sponsorship">
+                <span>Child Sponsorship</span>
+            </label>
+            <label class="purpose-option">
+                <input type="radio" name="purpose" value="academy">
+                <span>Rainbow Academy</span>
+            </label>
+            <label class="purpose-option">
+                <input type="radio" name="purpose" value="farm">
+                <span>Sunbeam Farm</span>
+            </label>
+        </div>
+
+        <div class="amount-select">
+            <button type="button" class="amount-btn" data-amount="500">KES 500</button>
+            <button type="button" class="amount-btn" data-amount="1000">KES 1,000</button>
+            <button type="button" class="amount-btn" data-amount="2500">KES 2,500</button>
+            <button type="button" class="amount-btn" data-amount="5000">KES 5,000</button>
+        </div>
+
+        <input type="number" name="amount" id="amount" placeholder="Or enter your own amount (KES)" required>
+
+        <input type="text" name="full_name" placeholder="Full name">
+        <input type="tel" name="phone" placeholder="M-Pesa phone number (e.g. 07XXXXXXXX)" required>
+
+        <button type="submit" class="give-submit-btn">Give via M-Pesa</button>
+
+        <p class="mpesa-note">
+            You'll receive an M-Pesa prompt (STK Push) on your phone to
+            complete this payment securely.
+        </p>
+    </form>
+</section>
+
+<script>
+document.querySelectorAll('.amount-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.getElementById('amount').value = btn.dataset.amount;
+        document.querySelectorAll('.amount-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Children's Home & Refuge Centre — KSM{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <h1>Children's Home & Refuge Centre</h1>
+    <p class="lead">
+        Sunbeam Children's Home is a safe refuge for children who have been
+        orphaned, abandoned, neglected, or abused — placed with us by local
+        authorities in the Teso District of Western Kenya.
+    </p>
+
+    <div class="story-block">
+        <h2>A Family, Not Just a Shelter</h2>
+        <p>
+            Every child who comes through our doors is met with care, structure,
+            and the love of a real family — not just a bed and a meal. Children
+            grow up here from infancy through age 18, supported through school,
+            faith, and community.
+        </p>
+    </div>
+
+    <div class="story-block">
+        <h2>What We Provide</h2>
+        <ul class="ksm-list">
+            <li>Housing, food, and daily care</li>
+            <li>Access to Rainbow Academy for education</li>
+            <li>Christian discipleship through the Shalom Bible School & Church</li>
+            <li>Counselling and support for children recovering from trauma</li>
+        </ul>
+    </div>
+
+    <div class="section-photos">
+        <h2>Photos & Updates</h2>
+
+        {% if photos %}
+        <div class="section-slider">
+            <div class="slider-track" id="sliderTrack">
+                {% for photo in photos %}
+                <div class="slide">
+                    <img src="{{ url_for('static', filename='uploads/sections/' + photo.filename) }}" alt="{{ photo.caption }}">
+                    {% if photo.caption %}<p class="slide-caption">{{ photo.caption }}</p>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            <button class="slider-btn prev" onclick="moveSlide(-1)">&#10094;</button>
+            <button class="slider-btn next" onclick="moveSlide(1)">&#10095;</button>
+        </div>
+        {% else %}
+        <p class="muted">Photos from this section will appear here — coming soon.</p>
+        {% endif %}
+
+        <a href="/gallery/childrens_home" class="sponsor-btn gallery-btn">View Gallery</a>
+    </div>
+</section>
+
+<script>
+let currentSlide = 0;
+let slideTimer;
+
+function showSlide(index) {
+    const slides = document.querySelectorAll('#sliderTrack .slide');
+    if (slides.length === 0) return;
+    if (index >= slides.length) currentSlide = 0;
+    else if (index < 0) currentSlide = slides.length - 1;
+    else currentSlide = index;
+    document.getElementById('sliderTrack').style.transform = `translateX(-${currentSlide * 100}%)`;
+}
+
+function moveSlide(direction) {
+    showSlide(currentSlide + direction);
+    resetTimer();
+}
+
+function resetTimer() {
+    clearInterval(slideTimer);
+    slideTimer = setInterval(() => moveSlide(1), 3000);
+}
+
+resetTimer();
+</script>
+{% endblock %}

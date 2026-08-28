@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Home — Kenya Sunbeam Ministries{% endblock %}
+
+{% block content %}
+<section class="hero">
+    <h1>Kenya Sunbeam Ministries</h1>
+    <p>Bringing light to a dark place.</p>
+</section>
+
+<div class="section-divider">
+    <div class="divider-logo-wrap">
+        <img src="{{ url_for('static', filename='images/baj.jpg') }}" alt="Kenya Sunbeam Ministries" class="divider-logo">
+    </div>
+</div>
+
+{% if director %}
+<section class="page-section">
+    <h2>Meet Our Founder — {{ director.name }}</h2>
+    <div class="director-block">
+        {% if director.photo_filename %}
+            <img src="{{ url_for('static', filename='uploads/director/' + director.photo_filename) }}" class="director-photo" alt="{{ director.name }}">
+        {% endif %}
+        {% if director.role %}
+        <p class="director-role">{{ director.role }}</p>
+        {% endif %}
+        {% if director.bio %}
+        <div class="director-bio">{{ director.bio }}</div>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
+<section class="page-section">
+    <h2>Latest Updates</h2>
+
+    {% if photos %}
+    <div class="section-slider">
+        <div class="slider-track" id="sliderTrack">
+            {% for photo in photos %}
+            <div class="slide">
+                <img src="{{ url_for('static', filename='uploads/sections/' + photo.filename) }}" alt="{{ photo.caption }}">
+                {% if photo.caption %}<p class="slide-caption">{{ photo.caption }}</p>{% endif %}
+            </div>
+            {% endfor %}
+        </div>
+        <button class="slider-btn prev" onclick="moveSlide(-1)">&#10094;</button>
+        <button class="slider-btn next" onclick="moveSlide(1)">&#10095;</button>
+    </div>
+    {% else %}
+    <p class="muted">Photos and updates will appear here — coming soon.</p>
+    {% endif %}
+
+    <a href="/gallery/home" class="sponsor-btn gallery-btn">View Gallery</a>
+</section>
+
+<script>
+let currentSlide = 0;
+let slideTimer;
+
+function showSlide(index) {
+    const slides = document.querySelectorAll('#sliderTrack .slide');
+    if (slides.length === 0) return;
+    if (index >= slides.length) currentSlide = 0;
+    else if (index < 0) currentSlide = slides.length - 1;
+    else currentSlide = index;
+    document.getElementById('sliderTrack').style.transform = `translateX(-${currentSlide * 100}%)`;
+}
+
+function moveSlide(direction) {
+    showSlide(currentSlide + direction);
+    resetTimer();
+}
+
+function resetTimer() {
+    clearInterval(slideTimer);
+    slideTimer = setInterval(() => moveSlide(1), 3000);
+}
+
+resetTimer();
+</script>
+{% endblock %}

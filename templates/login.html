@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Login — KSM{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <h1>Login</h1>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <p class="flash-error">{{ messages[0] }}</p>
+      {% endif %}
+    {% endwith %}
+
+    <form class="prayer-form" action="/login" method="POST" style="margin-top:20px;">
+        <input type="email" name="email" placeholder="Email" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button type="submit" class="sponsor-btn">Log In</button>
+    </form>
+
+    <p class="muted" style="margin-top:20px;">
+        Don't have an account? <a href="/register" style="color:#2ecc71;">Register here</a>.
+    </p>
+</section>
+{% endblock %}

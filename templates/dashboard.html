@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% block title %}Dashboard — KSM{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <h1>Welcome, {{ current_user.full_name }}</h1>
+    <p class="lead">Logged in as: {{ current_user.role }}</p>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <p class="flash-success">{{ messages[0] }}</p>
+      {% endif %}
+    {% endwith %}
+
+    <a href="/logout" class="sponsor-btn" style="max-width:150px; margin: 0 auto 40px auto; display:block;">Log Out</a>
+
+    {% if current_user.is_admin() %}
+
+    <div class="dash-block">
+        <h2>Director Info (Home Page)</h2>
+        {% if director and director.photo_filename %}
+        <img src="{{ url_for('static', filename='uploads/director/' + director.photo_filename) }}" class="director-photo" alt="Current director photo" style="margin-bottom:15px;">
+        {% endif %}
+        <form class="prayer-form" action="/dashboard/update-director" method="POST" enctype="multipart/form-data">
+            <input type="text" name="name" placeholder="Director's name" value="{{ director.name if director else 'Ellen Allison' }}">
+            <input type="text" name="role" placeholder="Role / title" value="{{ director.role if director else '' }}">
+            <textarea name="bio" rows="8" placeholder="About the director... (press Enter twice between paragraphs)">{{ director.bio if director else '' }}</textarea>
+            <label class="checkbox-label">Update photo (optional):</label>
+            <input type="file" name="photo" accept="image/*">
+            <button type="submit" class="sponsor-btn">Save Director Info</button>
+        </form>
+    </div>
+
+    <div class="dash-block">
+        <h2>Pending Prayer Requests ({{ pending_prayers|length }})</h2>
+        {% if pending_prayers %}
+            {% for req in pending_prayers %}
+            <div class="prayer-card">
+                <p>{{ req.message }}</p>
+                <span class="prayer-author">— {{ req.name }}</span>
+                <div class="dash-actions">
+                    <form action="/dashboard/approve-prayer/{{ req.id }}" method="POST">
+                        <button type="submit" class="mini-btn approve">Approve</button>
+                    </form>
+                    <form action="/dashboard/delete-prayer/{{ req.id }}" method="POST">
+                        <button type="submit" class="mini-btn delete">Delete</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="muted">No pending requests.</p>
+        {% endif %}
+    </div>
+
+    <div class="dash-block">
+        <h2>Children ({{ children|length }})</h2>
+        <div class="children-grid">
+            {% for child in children %}
+            <div class="child-card">
+                {% if child.photo_filename %}
+                    <img src="{{ url_for('static', filename='uploads/children/' + child.photo_filename) }}" class="child-photo" alt="{{ child.name }}">
+                {% else %}
+                    <div class="child-photo-placeholder">No photo yet</div>
+                {% endif %}
+                <h3>{{ child.name }}, age {{ child.age }}</h3>
+                <p>{{ child.story }}</p>
+                <span class="sponsor-status {% if child.is_sponsored %}sponsored{% else %}available{% endif %}">
+                    {% if child.is_sponsored %}Sponsored{% else %}Needs a sponsor{% endif %}
+                </span>
+            </div>
+            {% endfor %}
+        </div>
+
+        <h3 style="margin-top:30px; color:#2ecc71;">Add a Child</h3>
+        <form class="prayer-form" action="/dashboard/add-child" method="POST" enctype="multipart/form-data">
+            <input type="text" name="name" placeholder="Child's name" required>
+            <input type="number" name="age" placeholder="Age">
+            <textarea name="story" rows="3" placeholder="Short story"></textarea>
+            <label class="checkbox-label">Photo (optional):</label>
+            <input type="file" name="photo" accept="image/*">
+            <button type="submit" class="sponsor-btn">Add Child</button>
+        </form>
+    </div>
+
+    <div class="dash-block">
+        <h2>Section Photos & Updates</h2>
+        <p class="muted">Upload photos to Home, Children's Home, Rainbow Academy, Bible School & Church, or Sunbeam Farm.</p>
+
+        <form class="prayer-form" action="/dashboard/add-section-photo" method="POST" enctype="multipart/form-data">
+            <select name="section" required>
+                <option value="">Choose a section...</option>
+                {% for key, label in section_labels.items() %}
+                <option value="{{ key }}">{{ label }}</option>
+                {% endfor %}
+            </select>
+            <input type="text" name="caption" placeholder="Caption (optional)">
+            <input type="file" name="photo" accept="image/*" required>
+            <button type="submit" class="sponsor-btn">Upload Photo</button>
+        </form>
+
+        <div class="children-grid" style="margin-top:30px;">
+            {% for photo in section_photos %}
+            <div class="child-card">
+                <img src="{{ url_for('static', filename='uploads/sections/' + photo.filename) }}" class="child-photo" alt="{{ photo.caption }}">
+                <p style="font-size:0.85rem; color:#6faf88;">{{ section_labels[photo.section] }}</p>
+                {% if photo.caption %}<p>{{ photo.caption }}</p>{% endif %}
+                <form action="/dashboard/delete-section-photo/{{ photo.id }}" method="POST">
+                    <button type="submit" class="mini-btn delete">Delete</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% if not section_photos %}
+            <p class="muted" style="margin-top:20px;">No section photos uploaded yet.</p>
+        {% endif %}
+    </div>
+
+    <div class="dash-block">
+        <h2>Recent Donations ({{ donations|length }})</h2>
+        {% if donations %}
+            {% for d in donations %}
+            <div class="prayer-card">
+                <p>{{ d.full_name }} — KES {{ d.amount }} ({{ d.purpose }})</p>
+                <span class="prayer-author">Status: {{ d.status }} · {{ d.phone }}</span>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="muted">No donations yet.</p>
+        {% endif %}
+    </div>
+
+    {% else %}
+
+    <div class="dash-block">
+        <p class="muted" style="text-align:center;">
+            Thank you for being part of the KSM family. Sponsorship and
+            donation history will appear here as you give.
+        </p>
+    </div>
+
+    {% endif %}
+</section>
+{% endblock %}

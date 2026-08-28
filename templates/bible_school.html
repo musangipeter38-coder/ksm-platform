@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Shalom Bible School & Local Church — KSM{% endblock %}
+
+{% block content %}
+<section class="page-section">
+    <h1>Shalom Bible School & Local Church</h1>
+    <p class="lead">
+        The Shalom Bible School and local church meet at the KSM Prayer
+        Centre, which also hosts Sunday School lessons and Holiday Bible
+        Clubs for children in the home and the community.
+    </p>
+
+    <div class="story-block">
+        <h2>A Well-Attended Church</h2>
+        <p>
+            Ellen Allison, KSM's founder, serves as the local Pastor.
+            Under her leadership, a well-attended church has grown at the
+            Prayer Centre, offering worship, teaching, and discipleship for
+            adults and children in the Teso District.
+        </p>
+    </div>
+
+    <div class="story-block">
+        <h2>Growing in Faith</h2>
+        <ul class="ksm-list">
+            <li>Sunday services open to the whole community</li>
+            <li>Sunday School for children</li>
+            <li>Holiday Bible Clubs during school breaks</li>
+            <li>Bible School teaching for those pursuing deeper discipleship</li>
+        </ul>
+    </div>
+
+    <div class="section-photos">
+        <h2>Photos & Updates</h2>
+
+        {% if photos %}
+        <div class="section-slider">
+            <div class="slider-track" id="sliderTrack">
+                {% for photo in photos %}
+                <div class="slide">
+                    <img src="{{ url_for('static', filename='uploads/sections/' + photo.filename) }}" alt="{{ photo.caption }}">
+                    {% if photo.caption %}<p class="slide-caption">{{ photo.caption }}</p>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            <button class="slider-btn prev" onclick="moveSlide(-1)">&#10094;</button>
+            <button class="slider-btn next" onclick="moveSlide(1)">&#10095;</button>
+        </div>
+        {% else %}
+        <p class="muted">Photos from this section will appear here — coming soon.</p>
+        {% endif %}
+
+        <a href="/gallery/bible_school" class="sponsor-btn gallery-btn">View Gallery</a>
+    </div>
+</section>
+
+<script>
+let currentSlide = 0;
+let slideTimer;
+
+function showSlide(index) {
+    const slides = document.querySelectorAll('#sliderTrack .slide');
+    if (slides.length === 0) return;
+    if (index >= slides.length) currentSlide = 0;
+    else if (index < 0) currentSlide = slides.length - 1;
+    else currentSlide = index;
+    document.getElementById('sliderTrack').style.transform = `translateX(-${currentSlide * 100}%)`;
+}
+
+function moveSlide(direction) {
+    showSlide(currentSlide + direction);
+    resetTimer();
+}
+
+function resetTimer() {
+    clearInterval(slideTimer);
+    slideTimer = setInterval(() => moveSlide(1), 3000);
+}
+
+resetTimer();
+</script>
+{% endblock %}
