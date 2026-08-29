@@ -896,4 +896,67 @@ footer {
         grid-template-columns: 1fr;
     }
 }
+.verse-slider {
+    position: relative;
+    max-width: 650px;
+    margin: 40px auto;
+    overflow: hidden;
+    border-radius: 14px;
+    border-left: 3px solid #2ecc71;
+    background: rgba(46, 204, 113, 0.05);
+}
+
+.verse-track {
+    display: flex;
+    transition: transform 0.6s ease-in-out;
+}
+
+.verse-slide {
+    min-width: 100%;
+    box-sizing: border-box;
+    padding: 30px 50px;
+    text-align: center;
+}
+
+.verse-slide p {
+    font-style: italic;
+    color: #d5f5e3;
+    font-size: 1.05rem;
+    line-height: 1.7;
+}
+
+.verse-slide span {
+    display: block;
+    margin-top: 12px;
+    color: #2ecc71;
+    font-size: 0.9rem;
+}
+
+/* Rising bubbles */
+.bubble {
+    position: absolute;
+    bottom: -50px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.5), rgba(46,204,113,0.15) 70%);
+    border: 1px solid rgba(255,255,255,0.2);
+    opacity: 0;
+    animation: rise linear infinite;
+}
+
+.b1 { width: 10px; height: 10px; left: 10%; animation-duration: 14s; animation-delay: 0s; }
+.b2 { width: 16px; height: 16px; left: 22%; animation-duration: 18s; animation-delay: 2s; }
+.b3 { width: 8px;  height: 8px;  left: 35%; animation-duration: 12s; animation-delay: 4s; }
+.b4 { width: 14px; height: 14px; left: 48%; animation-duration: 20s; animation-delay: 1s; }
+.b5 { width: 10px; height: 10px; left: 60%; animation-duration: 15s; animation-delay: 6s; }
+.b6 { width: 18px; height: 18px; left: 72%; animation-duration: 22s; animation-delay: 3s; }
+.b7 { width: 9px;  height: 9px;  left: 85%; animation-duration: 13s; animation-delay: 5s; }
+.b8 { width: 12px; height: 12px; left: 93%; animation-duration: 17s; animation-delay: 7s; }
+
+@keyframes rise {
+    0%   { transform: translateY(0) translateX(0); opacity: 0; }
+    10%  { opacity: 0.6; }
+    50%  { transform: translateY(-50vh) translateX(15px); opacity: 0.4; }
+    90%  { opacity: 0.15; }
+    100% { transform: translateY(-100vh) translateX(-10px); opacity: 0; }
+}
 

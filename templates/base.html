@@ -12,12 +12,20 @@
         <div class="orb orb1"></div>
         <div class="orb orb2"></div>
         <div class="orb orb3"></div>
+        <div class="bubble b1"></div>
+        <div class="bubble b2"></div>
+        <div class="bubble b3"></div>
+        <div class="bubble b4"></div>
+        <div class="bubble b5"></div>
+        <div class="bubble b6"></div>
+        <div class="bubble b7"></div>
+        <div class="bubble b8"></div>
     </div>
 
     <nav class="navbar">
         <a href="/" class="logo-link">
             {% if site_settings and site_settings.logo_filename %}
-                <img src="{{ url_for('static', filename='uploads/site/' + site_settings.logo_filename) }}" alt="Kenya Sunbeam Ministries" class="logo-img">
+                <img src="{{ site_settings.logo_filename }}" alt="Kenya Sunbeam Ministries" class="logo-img">
             {% else %}
                 <img src="{{ url_for('static', filename='images/baj.jpg') }}" alt="Kenya Sunbeam Ministries" class="logo-img">
             {% endif %}

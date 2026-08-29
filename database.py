@@ -35,7 +35,7 @@ class Child(db.Model):
     name = db.Column(db.String(100), nullable=False)
     age = db.Column(db.Integer)
     story = db.Column(db.Text)
-    photo_filename = db.Column(db.String(200))
+    photo_filename = db.Column(db.String(500))
     is_sponsored = db.Column(db.Boolean, default=False)
     monthly_need = db.Column(db.Integer, default=2000)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
@@ -71,7 +71,7 @@ class SectionPhoto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     section = db.Column(db.String(50), nullable=False)
     caption = db.Column(db.Text)
-    filename = db.Column(db.String(200), nullable=False)
+    filename = db.Column(db.String(500), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
@@ -82,7 +82,7 @@ class DirectorInfo(db.Model):
     name = db.Column(db.String(120), default="Ellen Allison")
     role = db.Column(db.String(200), default="Founder & Missionary — Kenya Sunbeam Ministries")
     bio = db.Column(db.Text)
-    photo_filename = db.Column(db.String(200))
+    photo_filename = db.Column(db.String(500))
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
 
@@ -90,5 +90,14 @@ class SiteSettings(db.Model):
     __tablename__ = "site_settings"
 
     id = db.Column(db.Integer, primary_key=True)
-    logo_filename = db.Column(db.String(200))
+    logo_filename = db.Column(db.String(500))
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+
+class BibleVerse(db.Model):
+    __tablename__ = "bible_verses"
+
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.Text, nullable=False)
+    reference = db.Column(db.String(100), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)

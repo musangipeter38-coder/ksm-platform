@@ -18,7 +18,7 @@
     <h2>Meet Our Founder — {{ director.name }}</h2>
     <div class="director-block">
         {% if director.photo_filename %}
-            <img src="{{ url_for('static', filename='uploads/director/' + director.photo_filename) }}" class="director-photo" alt="{{ director.name }}">
+            <img src="{{ director.photo_filename }}" class="director-photo" alt="{{ director.name }}">
         {% endif %}
         {% if director.role %}
         <p class="director-role">{{ director.role }}</p>
@@ -38,7 +38,7 @@
         <div class="slider-track" id="sliderTrack">
             {% for photo in photos %}
             <div class="slide">
-                <img src="{{ url_for('static', filename='uploads/sections/' + photo.filename) }}" alt="{{ photo.caption }}">
+                <img src="{{ photo.filename }}" alt="{{ photo.caption }}">
                 {% if photo.caption %}<p class="slide-caption">{{ photo.caption }}</p>{% endif %}
             </div>
             {% endfor %}
@@ -73,7 +73,7 @@ function moveSlide(direction) {
 
 function resetTimer() {
     clearInterval(slideTimer);
-    slideTimer = setInterval(() => moveSlide(1), 3000);
+    slideTimer = setInterval(() => moveSlide(1), 8000);
 }
 
 resetTimer();

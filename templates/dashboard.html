@@ -17,9 +17,32 @@
     {% if current_user.is_admin() %}
 
     <div class="dash-block">
+        <h2>Bible Verses ({{ verses|length }})</h2>
+        <p class="muted">These slide on the About page, changing every 8 seconds. Post a new one weekly.</p>
+
+        <form class="prayer-form" action="/dashboard/add-verse" method="POST">
+            <textarea name="text" rows="3" placeholder="Verse text..." required></textarea>
+            <input type="text" name="reference" placeholder="Reference (e.g. Isaiah 41:10)" required>
+            <button type="submit" class="sponsor-btn">Add Verse</button>
+        </form>
+
+        <div style="margin-top:20px;">
+            {% for v in verses %}
+            <div class="prayer-card">
+                <p>"{{ v.text }}"</p>
+                <span class="prayer-author">— {{ v.reference }}</span>
+                <form action="/dashboard/delete-verse/{{ v.id }}" method="POST" style="margin-top:8px;">
+                    <button type="submit" class="mini-btn delete">Delete</button>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="dash-block">
         <h2>Site Logo</h2>
         {% if settings and settings.logo_filename %}
-        <img src="{{ url_for('static', filename='uploads/site/' + settings.logo_filename) }}" class="director-photo" alt="Current logo" style="margin-bottom:15px;">
+        <img src="{{ settings.logo_filename }}" class="director-photo" alt="Current logo" style="margin-bottom:15px;">
         {% endif %}
         <form class="prayer-form" action="/dashboard/update-logo" method="POST" enctype="multipart/form-data">
             <label class="checkbox-label">Upload a new logo (replaces the one in the navbar site-wide):</label>
@@ -31,12 +54,12 @@
     <div class="dash-block">
         <h2>Director Info (Home Page)</h2>
         {% if director and director.photo_filename %}
-        <img src="{{ url_for('static', filename='uploads/director/' + director.photo_filename) }}" class="director-photo" alt="Current director photo" style="margin-bottom:15px;">
+        <img src="{{ director.photo_filename }}" class="director-photo" alt="Current director photo" style="margin-bottom:15px;">
         {% endif %}
         <form class="prayer-form" action="/dashboard/update-director" method="POST" enctype="multipart/form-data">
             <input type="text" name="name" placeholder="Director's name" value="{{ director.name if director else 'Ellen Allison' }}">
             <input type="text" name="role" placeholder="Role / title" value="{{ director.role if director else '' }}">
-            <textarea name="bio" rows="8" placeholder="About the director... (press Enter twice between paragraphs)">{{ director.bio if director else '' }}</textarea>
+            <textarea name="bio" rows="8" placeholder="About the director...">{{ director.bio if director else '' }}</textarea>
             <label class="checkbox-label">Update photo (optional):</label>
             <input type="file" name="photo" accept="image/*">
             <button type="submit" class="sponsor-btn">Save Director Info</button>
@@ -71,7 +94,7 @@
             {% for child in children %}
             <div class="child-card">
                 {% if child.photo_filename %}
-                    <img src="{{ url_for('static', filename='uploads/children/' + child.photo_filename) }}" class="child-photo" alt="{{ child.name }}">
+                    <img src="{{ child.photo_filename }}" class="child-photo" alt="{{ child.name }}">
                 {% else %}
                     <div class="child-photo-placeholder">No photo yet</div>
                 {% endif %}
@@ -114,7 +137,7 @@
         <div class="children-grid" style="margin-top:30px;">
             {% for photo in section_photos %}
             <div class="child-card">
-                <img src="{{ url_for('static', filename='uploads/sections/' + photo.filename) }}" class="child-photo" alt="{{ photo.caption }}">
+                <img src="{{ photo.filename }}" class="child-photo" alt="{{ photo.caption }}">
                 <p style="font-size:0.85rem; color:#6faf88;">{{ section_labels[photo.section] }}</p>
 
                 <form action="/dashboard/edit-caption/{{ photo.id }}" method="POST" style="display:flex; gap:6px; margin-top:8px;">

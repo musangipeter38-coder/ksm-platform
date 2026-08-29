@@ -2,9 +2,11 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
+import cloudinary
+import cloudinary.uploader
+
 from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-from werkzeug.utils import secure_filename
 
 from mpesa import stk_push, normalize_phone
 
@@ -21,17 +23,15 @@ app.config["MPESA_SHORTCODE"] = os.environ.get("MPESA_SHORTCODE")
 app.config["MPESA_PASSKEY"] = os.environ.get("MPESA_PASSKEY")
 app.config["MPESA_CALLBACK_URL"] = os.environ.get("MPESA_CALLBACK_URL")
 
-CHILD_UPLOAD_FOLDER = os.path.join("static", "uploads", "children")
-SECTION_UPLOAD_FOLDER = os.path.join("static", "uploads", "sections")
-DIRECTOR_UPLOAD_FOLDER = os.path.join("static", "uploads", "director")
-SITE_UPLOAD_FOLDER = os.path.join("static", "uploads", "site")
-ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
-app.config["CHILD_UPLOAD_FOLDER"] = CHILD_UPLOAD_FOLDER
-app.config["SECTION_UPLOAD_FOLDER"] = SECTION_UPLOAD_FOLDER
-app.config["DIRECTOR_UPLOAD_FOLDER"] = DIRECTOR_UPLOAD_FOLDER
-app.config["SITE_UPLOAD_FOLDER"] = SITE_UPLOAD_FOLDER
+cloudinary.config(
+    cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
+    api_key=os.environ.get("CLOUDINARY_API_KEY"),
+    api_secret=os.environ.get("CLOUDINARY_API_SECRET"),
+)
 
-from database import db, bcrypt, User, Child, Donation, PrayerRequest, SectionPhoto, DirectorInfo, SiteSettings
+ALLOWED_EXTENSIONS = {"png", "jpg", "jpeg", "webp"}
+
+from database import db, bcrypt, User, Child, Donation, PrayerRequest, SectionPhoto, DirectorInfo, SiteSettings, BibleVerse
 db.init_app(app)
 bcrypt.init_app(app)
 
@@ -49,6 +49,13 @@ def load_user(user_id):
 
 def allowed_file(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+def upload_to_cloudinary(file, folder):
+    if not file or not file.filename or not allowed_file(file.filename):
+        return None
+    result = cloudinary.uploader.upload(file, folder=f"ksm/{folder}")
+    return result.get("secure_url")
 
 
 @app.context_processor
@@ -76,7 +83,8 @@ def home():
 
 @app.route("/about")
 def about():
-    return render_template("about.html")
+    verses = BibleVerse.query.order_by(BibleVerse.created_at.desc()).all()
+    return render_template("about.html", verses=verses)
 
 @app.route("/about/childrens-home")
 def childrens_home():
@@ -184,7 +192,7 @@ def give():
             db.session.commit()
 
             if result.get("ResponseCode") == "0":
-                flash("Check your phone \u2014 enter your M-Pesa PIN to complete the donation.")
+                flash("Check your phone — enter your M-Pesa PIN to complete the donation.")
             else:
                 flash(f"Could not start payment: {result.get('errorMessage', 'Unknown error')}")
         except Exception as exc:
@@ -286,6 +294,7 @@ def dashboard():
         section_photos = SectionPhoto.query.order_by(SectionPhoto.created_at.desc()).all()
         director = DirectorInfo.query.first()
         settings = SiteSettings.query.first()
+        verses = BibleVerse.query.order_by(BibleVerse.created_at.desc()).all()
         return render_template(
             "dashboard.html",
             children=children,
@@ -295,6 +304,7 @@ def dashboard():
             section_labels=SECTION_LABELS,
             director=director,
             settings=settings,
+            verses=verses,
         )
     return render_template("dashboard.html")
 
@@ -304,7 +314,6 @@ def dashboard():
 def approve_prayer(prayer_id):
     if not current_user.is_admin():
         return redirect(url_for("dashboard"))
-
     req = PrayerRequest.query.get_or_404(prayer_id)
     req.is_approved = True
     db.session.commit()
@@ -317,7 +326,6 @@ def approve_prayer(prayer_id):
 def delete_prayer(prayer_id):
     if not current_user.is_admin():
         return redirect(url_for("dashboard"))
-
     req = PrayerRequest.query.get_or_404(prayer_id)
     db.session.delete(req)
     db.session.commit()
@@ -335,19 +343,14 @@ def add_child():
     age = request.form.get("age", "").strip()
     story = request.form.get("story", "").strip()
     photo = request.files.get("photo")
-
-    photo_filename = None
-    if photo and photo.filename and allowed_file(photo.filename):
-        photo_filename = secure_filename(f"{name}_{photo.filename}".replace(" ", "_"))
-        os.makedirs(app.config["CHILD_UPLOAD_FOLDER"], exist_ok=True)
-        photo.save(os.path.join(app.config["CHILD_UPLOAD_FOLDER"], photo_filename))
+    photo_url = upload_to_cloudinary(photo, "children")
 
     if name:
         child = Child(
             name=name,
             age=int(age) if age else None,
             story=story,
-            photo_filename=photo_filename,
+            photo_filename=photo_url,
             monthly_need=2000,
         )
         db.session.add(child)
@@ -366,13 +369,10 @@ def add_section_photo():
     section = request.form.get("section", "").strip()
     caption = request.form.get("caption", "").strip()
     photo = request.files.get("photo")
+    photo_url = upload_to_cloudinary(photo, "sections")
 
-    if section in SECTION_LABELS and photo and photo.filename and allowed_file(photo.filename):
-        filename = secure_filename(f"{section}_{photo.filename}".replace(" ", "_"))
-        os.makedirs(app.config["SECTION_UPLOAD_FOLDER"], exist_ok=True)
-        photo.save(os.path.join(app.config["SECTION_UPLOAD_FOLDER"], filename))
-
-        entry = SectionPhoto(section=section, caption=caption, filename=filename)
+    if section in SECTION_LABELS and photo_url:
+        entry = SectionPhoto(section=section, caption=caption, filename=photo_url)
         db.session.add(entry)
         db.session.commit()
         flash("Photo uploaded.")
@@ -387,7 +387,6 @@ def add_section_photo():
 def edit_caption(photo_id):
     if not current_user.is_admin():
         return redirect(url_for("dashboard"))
-
     photo = SectionPhoto.query.get_or_404(photo_id)
     photo.caption = request.form.get("caption", "").strip()
     db.session.commit()
@@ -400,7 +399,6 @@ def edit_caption(photo_id):
 def delete_section_photo(photo_id):
     if not current_user.is_admin():
         return redirect(url_for("dashboard"))
-
     photo = SectionPhoto.query.get_or_404(photo_id)
     db.session.delete(photo)
     db.session.commit()
@@ -430,11 +428,9 @@ def update_director():
         director.role = role
     director.bio = bio
 
-    if photo and photo.filename and allowed_file(photo.filename):
-        filename = secure_filename(f"director_{photo.filename}".replace(" ", "_"))
-        os.makedirs(app.config["DIRECTOR_UPLOAD_FOLDER"], exist_ok=True)
-        photo.save(os.path.join(app.config["DIRECTOR_UPLOAD_FOLDER"], filename))
-        director.photo_filename = filename
+    photo_url = upload_to_cloudinary(photo, "director")
+    if photo_url:
+        director.photo_filename = photo_url
 
     db.session.commit()
     flash("Director info updated.")
@@ -453,16 +449,46 @@ def update_logo():
         settings = SiteSettings()
         db.session.add(settings)
 
-    if photo and photo.filename and allowed_file(photo.filename):
-        filename = secure_filename(f"logo_{photo.filename}".replace(" ", "_"))
-        os.makedirs(app.config["SITE_UPLOAD_FOLDER"], exist_ok=True)
-        photo.save(os.path.join(app.config["SITE_UPLOAD_FOLDER"], filename))
-        settings.logo_filename = filename
+    photo_url = upload_to_cloudinary(photo, "site")
+    if photo_url:
+        settings.logo_filename = photo_url
         db.session.commit()
         flash("Logo updated.")
     else:
         flash("Please choose a valid image.")
 
+    return redirect(url_for("dashboard"))
+
+
+@app.route("/dashboard/add-verse", methods=["POST"])
+@login_required
+def add_verse():
+    if not current_user.is_admin():
+        return redirect(url_for("dashboard"))
+
+    text = request.form.get("text", "").strip()
+    reference = request.form.get("reference", "").strip()
+
+    if text and reference:
+        verse = BibleVerse(text=text, reference=reference)
+        db.session.add(verse)
+        db.session.commit()
+        flash("Bible verse added.")
+    else:
+        flash("Please fill in both the verse and its reference.")
+
+    return redirect(url_for("dashboard"))
+
+
+@app.route("/dashboard/delete-verse/<int:verse_id>", methods=["POST"])
+@login_required
+def delete_verse(verse_id):
+    if not current_user.is_admin():
+        return redirect(url_for("dashboard"))
+    verse = BibleVerse.query.get_or_404(verse_id)
+    db.session.delete(verse)
+    db.session.commit()
+    flash("Verse removed.")
     return redirect(url_for("dashboard"))
 
 

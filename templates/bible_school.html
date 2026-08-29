@@ -10,26 +10,6 @@
         Clubs for children in the home and the community.
     </p>
 
-    <div class="story-block">
-        <h2>A Well-Attended Church</h2>
-        <p>
-            Ellen Allison, KSM's founder, serves as the local Pastor.
-            Under her leadership, a well-attended church has grown at the
-            Prayer Centre, offering worship, teaching, and discipleship for
-            adults and children in the Teso District.
-        </p>
-    </div>
-
-    <div class="story-block">
-        <h2>Growing in Faith</h2>
-        <ul class="ksm-list">
-            <li>Sunday services open to the whole community</li>
-            <li>Sunday School for children</li>
-            <li>Holiday Bible Clubs during school breaks</li>
-            <li>Bible School teaching for those pursuing deeper discipleship</li>
-        </ul>
-    </div>
-
     <div class="section-photos">
         <h2>Photos & Updates</h2>
 
@@ -38,7 +18,7 @@
             <div class="slider-track" id="sliderTrack">
                 {% for photo in photos %}
                 <div class="slide">
-                    <img src="{{ url_for('static', filename='uploads/sections/' + photo.filename) }}" alt="{{ photo.caption }}">
+                    <img src="{{ photo.filename }}" alt="{{ photo.caption }}">
                     {% if photo.caption %}<p class="slide-caption">{{ photo.caption }}</p>{% endif %}
                 </div>
                 {% endfor %}
@@ -57,7 +37,6 @@
 <script>
 let currentSlide = 0;
 let slideTimer;
-
 function showSlide(index) {
     const slides = document.querySelectorAll('#sliderTrack .slide');
     if (slides.length === 0) return;
@@ -66,17 +45,8 @@ function showSlide(index) {
     else currentSlide = index;
     document.getElementById('sliderTrack').style.transform = `translateX(-${currentSlide * 100}%)`;
 }
-
-function moveSlide(direction) {
-    showSlide(currentSlide + direction);
-    resetTimer();
-}
-
-function resetTimer() {
-    clearInterval(slideTimer);
-    slideTimer = setInterval(() => moveSlide(1), 3000);
-}
-
+function moveSlide(direction) { showSlide(currentSlide + direction); resetTimer(); }
+function resetTimer() { clearInterval(slideTimer); slideTimer = setInterval(() => moveSlide(1), 8000); }
 resetTimer();
 </script>
 {% endblock %}

@@ -5,32 +5,10 @@
 <section class="page-section">
     <h1>Rainbow Academy</h1>
     <p class="lead">
-        Rainbow Academy provides education for around 190 children — from
-        pre-school through the years leading into secondary education —
-        serving both children from Sunbeam Children's Home and the wider
-        local community.
+        Rainbow Academy provides education for children — from pre-school through
+        the years leading into secondary education — serving both children from
+        Sunbeam Children's Home and the wider local community.
     </p>
-
-    <div class="story-block">
-        <h2>Learning Alongside Community</h2>
-        <p>
-            The school was built to make sure no child in the home grows up
-            without an education, and to open that same opportunity to
-            children from the surrounding villages. Bringing children from
-            the home and the community together in one school strengthens
-            ties between KSM and the people it serves.
-        </p>
-    </div>
-
-    <div class="story-block">
-        <h2>What Rainbow Academy Offers</h2>
-        <ul class="ksm-list">
-            <li>Pre-school through upper primary education</li>
-            <li>Preparation and support for children transitioning into secondary school</li>
-            <li>A learning environment rooted in Christian values</li>
-            <li>A place where children from the home and the local community learn side by side</li>
-        </ul>
-    </div>
 
     <div class="section-photos">
         <h2>Photos & Updates</h2>
@@ -40,7 +18,7 @@
             <div class="slider-track" id="sliderTrack">
                 {% for photo in photos %}
                 <div class="slide">
-                    <img src="{{ url_for('static', filename='uploads/sections/' + photo.filename) }}" alt="{{ photo.caption }}">
+                    <img src="{{ photo.filename }}" alt="{{ photo.caption }}">
                     {% if photo.caption %}<p class="slide-caption">{{ photo.caption }}</p>{% endif %}
                 </div>
                 {% endfor %}
@@ -59,7 +37,6 @@
 <script>
 let currentSlide = 0;
 let slideTimer;
-
 function showSlide(index) {
     const slides = document.querySelectorAll('#sliderTrack .slide');
     if (slides.length === 0) return;
@@ -68,17 +45,8 @@ function showSlide(index) {
     else currentSlide = index;
     document.getElementById('sliderTrack').style.transform = `translateX(-${currentSlide * 100}%)`;
 }
-
-function moveSlide(direction) {
-    showSlide(currentSlide + direction);
-    resetTimer();
-}
-
-function resetTimer() {
-    clearInterval(slideTimer);
-    slideTimer = setInterval(() => moveSlide(1), 3000);
-}
-
+function moveSlide(direction) { showSlide(currentSlide + direction); resetTimer(); }
+function resetTimer() { clearInterval(slideTimer); slideTimer = setInterval(() => moveSlide(1), 8000); }
 resetTimer();
 </script>
 {% endblock %}

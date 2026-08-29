@@ -6,15 +6,14 @@
     <h1>Sponsor a Child</h1>
     <p class="lead">
         Every child at Sunbeam Children's Home deserves a chance to grow up
-        cared for, educated, and loved. Sponsoring a child directly supports
-        their food, schooling at Rainbow Academy, and daily needs.
+        cared for, educated, and loved.
     </p>
 
     <div class="children-grid">
         {% for child in children %}
         <div class="child-card">
             {% if child.photo_filename %}
-                <img src="{{ url_for('static', filename='uploads/children/' + child.photo_filename) }}" class="child-photo" alt="{{ child.name }}">
+                <img src="{{ child.photo_filename }}" class="child-photo" alt="{{ child.name }}">
             {% else %}
                 <div class="child-photo-placeholder">Photo coming soon</div>
             {% endif %}

@@ -18,13 +18,6 @@
             in Northern Ireland to dedicate her life to this work, trusting God to
             provide for her needs.
         </p>
-        <p>
-            What began as a calling to care for a handful of abandoned and orphaned
-            children has grown into a children's home, a school, a bible school and
-            church, and a working farm — together forming a community that nurtures
-            children through Christian principles, guiding them toward lives of
-            discipline, responsibility, and unity.
-        </p>
     </div>
 
     <div class="story-block">
@@ -32,18 +25,24 @@
         <p>
             To provide a safe, faith-centered home for vulnerable children — orphaned,
             abandoned, neglected, or living with disabilities — and to nurture them
-            from birth through age 18 with care, education, and hope. Through our
-            children's home, Rainbow Academy, and community partnerships, we empower
-            individuals socially, economically, and spiritually.
+            from birth through age 18 with care, education, and hope.
         </p>
     </div>
 
-    <div class="verse-block">
-        <p>"So do not fear, for I am with you; do not be dismayed, for I am your God.
-        I will strengthen you and help you; I will uphold you with my righteous
-        right hand."</p>
-        <span>— Isaiah 41:10</span>
+    {% if verses %}
+    <div class="verse-slider">
+        <div class="verse-track" id="verseTrack">
+            {% for v in verses %}
+            <div class="verse-slide">
+                <p>"{{ v.text }}"</p>
+                <span>— {{ v.reference }}</span>
+            </div>
+            {% endfor %}
+        </div>
+        <button class="slider-btn prev" onclick="moveVerse(-1)">&#10094;</button>
+        <button class="slider-btn next" onclick="moveVerse(1)">&#10095;</button>
     </div>
+    {% endif %}
 
     <div class="pillars-grid">
         <a href="/about/childrens-home" class="pillar-card">
@@ -68,4 +67,30 @@
         <p>Charity No. 109254 · Amagoro, Teso District, Kenya</p>
     </div>
 </section>
+
+<script>
+let currentVerse = 0;
+let verseTimer;
+
+function showVerse(index) {
+    const slides = document.querySelectorAll('#verseTrack .verse-slide');
+    if (slides.length === 0) return;
+    if (index >= slides.length) currentVerse = 0;
+    else if (index < 0) currentVerse = slides.length - 1;
+    else currentVerse = index;
+    document.getElementById('verseTrack').style.transform = `translateX(-${currentVerse * 100}%)`;
+}
+
+function moveVerse(direction) {
+    showVerse(currentVerse + direction);
+    resetVerseTimer();
+}
+
+function resetVerseTimer() {
+    clearInterval(verseTimer);
+    verseTimer = setInterval(() => moveVerse(1), 8000);
+}
+
+resetVerseTimer();
+</script>
 {% endblock %}

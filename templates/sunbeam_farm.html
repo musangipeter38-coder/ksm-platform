@@ -10,27 +10,6 @@
         home, the school, and the wider community.
     </p>
 
-    <div class="story-block">
-        <h2>Working Toward Self-Sufficiency</h2>
-        <p>
-            Rather than relying only on outside support, KSM has developed
-            a working farm with cows, goats, and chickens, alongside crops
-            of fruit, vegetables, grain, and oil. This reduces the ministry's
-            dependence on donations for daily needs and teaches practical
-            skills to the young people who grow up here.
-        </p>
-    </div>
-
-    <div class="story-block">
-        <h2>What the Farm Supports</h2>
-        <ul class="ksm-list">
-            <li>Daily food for children at the home and school</li>
-            <li>Practical agricultural skills for young people</li>
-            <li>Reduced dependence on outside food donations over time</li>
-            <li>A model of sustainability the wider community can learn from</li>
-        </ul>
-    </div>
-
     <div class="section-photos">
         <h2>Photos & Updates</h2>
 
@@ -39,7 +18,7 @@
             <div class="slider-track" id="sliderTrack">
                 {% for photo in photos %}
                 <div class="slide">
-                    <img src="{{ url_for('static', filename='uploads/sections/' + photo.filename) }}" alt="{{ photo.caption }}">
+                    <img src="{{ photo.filename }}" alt="{{ photo.caption }}">
                     {% if photo.caption %}<p class="slide-caption">{{ photo.caption }}</p>{% endif %}
                 </div>
                 {% endfor %}
@@ -58,7 +37,6 @@
 <script>
 let currentSlide = 0;
 let slideTimer;
-
 function showSlide(index) {
     const slides = document.querySelectorAll('#sliderTrack .slide');
     if (slides.length === 0) return;
@@ -67,17 +45,8 @@ function showSlide(index) {
     else currentSlide = index;
     document.getElementById('sliderTrack').style.transform = `translateX(-${currentSlide * 100}%)`;
 }
-
-function moveSlide(direction) {
-    showSlide(currentSlide + direction);
-    resetTimer();
-}
-
-function resetTimer() {
-    clearInterval(slideTimer);
-    slideTimer = setInterval(() => moveSlide(1), 3000);
-}
-
+function moveSlide(direction) { showSlide(currentSlide + direction); resetTimer(); }
+function resetTimer() { clearInterval(slideTimer); slideTimer = setInterval(() => moveSlide(1), 8000); }
 resetTimer();
 </script>
 {% endblock %}

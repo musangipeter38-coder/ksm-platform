@@ -10,7 +10,7 @@
     <div class="gallery-grid">
         {% for photo in photos %}
         <div class="gallery-item">
-            <img src="{{ url_for('static', filename='uploads/sections/' + photo.filename) }}" class="gallery-photo" alt="{{ photo.caption }}">
+            <img src="{{ photo.filename }}" class="gallery-photo" alt="{{ photo.caption }}">
             {% if photo.caption %}<p class="gallery-caption">{{ photo.caption }}</p>{% endif %}
         </div>
         {% endfor %}
