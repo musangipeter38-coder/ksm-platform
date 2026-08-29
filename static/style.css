@@ -778,4 +778,122 @@ footer {
     object-fit: cover;
     mix-blend-mode: multiply;
 }
+/* ================= MOBILE RESPONSIVE ================= */
+
+@media (max-width: 768px) {
+
+    /* Navbar becomes stacked and centered */
+    .navbar {
+        flex-direction: column;
+        gap: 15px;
+        padding: 15px 20px;
+    }
+
+    .logo-link {
+        justify-content: center;
+    }
+
+    .nav-links {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+        font-size: 0.85rem;
+    }
+
+    .dropdown-menu {
+        left: 50%;
+        transform: translateX(-50%);
+        min-width: 180px;
+    }
+
+    /* Hero text scales down */
+    .hero {
+        padding: 80px 20px;
+    }
+
+    .hero h1 {
+        font-size: 2rem;
+    }
+
+    .hero p {
+        font-size: 1rem;
+    }
+
+    /* Page sections get tighter side padding */
+    .page-section {
+        padding: 60px 20px;
+    }
+
+    .page-section h1 {
+        font-size: 1.8rem;
+    }
+
+    /* Grids collapse to a single column */
+    .pillars-grid,
+    .children-grid,
+    .gallery-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* Slider shrinks its image height */
+    .slide img {
+        height: 220px;
+    }
+
+    .slider-btn {
+        width: 30px;
+        height: 30px;
+        font-size: 0.85rem;
+    }
+
+    /* Forms take full width comfortably */
+    .prayer-form,
+    .give-form {
+        max-width: 100%;
+        padding: 0 5px;
+    }
+
+    .purpose-select,
+    .amount-select {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    /* Director section image shrinks */
+    .director-photo {
+        width: 150px;
+        height: 150px;
+    }
+
+    .divider-logo-wrap {
+        width: 140px;
+        height: 140px;
+    }
+
+    /* Dashboard blocks fit narrower screens */
+    .dash-block {
+        padding: 0 10px;
+    }
+
+    .dash-actions {
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 480px) {
+    .wordmark span {
+        font-size: 0.7rem;
+    }
+
+    .logo-img {
+        height: 45px;
+    }
+
+    .hero h1 {
+        font-size: 1.6rem;
+    }
+
+    .amount-select {
+        grid-template-columns: 1fr;
+    }
+}
 
