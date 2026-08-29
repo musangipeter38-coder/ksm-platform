@@ -2,15 +2,24 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-from flask import Flask, render_template, request, redirect, url_for, flash
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 from werkzeug.utils import secure_filename
+
+from mpesa import stk_push, normalize_phone
 
 app = Flask(__name__)
 
 app.config["SECRET_KEY"] = os.environ.get("SECRET_KEY", "change-this-later-to-something-random")
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("DATABASE_URL", "sqlite:///ksm.db")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+app.config["MPESA_ENV"] = os.environ.get("MPESA_ENV", "sandbox")
+app.config["MPESA_CONSUMER_KEY"] = os.environ.get("MPESA_CONSUMER_KEY")
+app.config["MPESA_CONSUMER_SECRET"] = os.environ.get("MPESA_CONSUMER_SECRET")
+app.config["MPESA_SHORTCODE"] = os.environ.get("MPESA_SHORTCODE")
+app.config["MPESA_PASSKEY"] = os.environ.get("MPESA_PASSKEY")
+app.config["MPESA_CALLBACK_URL"] = os.environ.get("MPESA_CALLBACK_URL")
 
 CHILD_UPLOAD_FOLDER = os.path.join("static", "uploads", "children")
 SECTION_UPLOAD_FOLDER = os.path.join("static", "uploads", "sections")
@@ -131,15 +140,17 @@ def prayer():
     return render_template("prayer.html", prayers=prayers)
 
 
+# ---------- Giving / M-Pesa ----------
+
 @app.route("/give", methods=["GET", "POST"])
 def give():
     if request.method == "POST":
         full_name = request.form.get("full_name", "").strip() or "Anonymous"
-        phone = request.form.get("phone", "").strip()
+        phone_raw = request.form.get("phone", "").strip()
         amount = request.form.get("amount", "").strip()
         purpose = request.form.get("purpose", "general")
 
-        if not phone or not amount:
+        if not phone_raw or not amount:
             flash("Phone number and amount are required.")
             return redirect(url_for("give"))
 
@@ -148,6 +159,8 @@ def give():
         except ValueError:
             flash("Please enter a valid amount.")
             return redirect(url_for("give"))
+
+        phone = normalize_phone(phone_raw)
 
         donation = Donation(
             full_name=full_name,
@@ -159,10 +172,51 @@ def give():
         db.session.add(donation)
         db.session.commit()
 
-        flash("Thank you! Your donation has been recorded. (M-Pesa payment will be connected next.)")
+        try:
+            result = stk_push(
+                phone_number=phone,
+                amount=amount_int,
+                account_reference=f"KSM{donation.id}",
+                description="KSM Donation",
+            )
+            checkout_id = result.get("CheckoutRequestID")
+            donation.mpesa_receipt = checkout_id
+            db.session.commit()
+
+            if result.get("ResponseCode") == "0":
+                flash("Check your phone \u2014 enter your M-Pesa PIN to complete the donation.")
+            else:
+                flash(f"Could not start payment: {result.get('errorMessage', 'Unknown error')}")
+        except Exception as exc:
+            donation.status = "failed"
+            db.session.commit()
+            flash(f"Payment could not be started: {exc}")
+
         return redirect(url_for("give"))
 
     return render_template("give.html")
+
+
+@app.route("/mpesa/callback", methods=["POST"])
+def mpesa_callback():
+    data = request.get_json(force=True, silent=True) or {}
+    result = data.get("Body", {}).get("stkCallback", {})
+    checkout_id = result.get("CheckoutRequestID")
+    result_code = result.get("ResultCode")
+
+    donation = Donation.query.filter_by(mpesa_receipt=checkout_id).first()
+    if donation:
+        if result_code == 0:
+            donation.status = "completed"
+            items = result.get("CallbackMetadata", {}).get("Item", [])
+            for item in items:
+                if item.get("Name") == "MpesaReceiptNumber":
+                    donation.mpesa_receipt = item.get("Value")
+        else:
+            donation.status = "failed"
+        db.session.commit()
+
+    return jsonify({"ResultCode": 0, "ResultDesc": "Accepted"})
 
 
 # ---------- Auth ----------
