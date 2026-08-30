@@ -360,6 +360,37 @@ def add_child():
     return redirect(url_for("dashboard"))
 
 
+@app.route("/dashboard/edit-child/<int:child_id>", methods=["POST"])
+@login_required
+def edit_child(child_id):
+    if not current_user.is_admin():
+        return redirect(url_for("dashboard"))
+
+    child = Child.query.get_or_404(child_id)
+
+    name = request.form.get("name", "").strip()
+    age = request.form.get("age", "").strip()
+    story = request.form.get("story", "").strip()
+    monthly_need = request.form.get("monthly_need", "").strip()
+    photo = request.files.get("photo")
+
+    if name:
+        child.name = name
+    if age:
+        child.age = int(age)
+    child.story = story
+    if monthly_need:
+        child.monthly_need = int(monthly_need)
+
+    photo_url = upload_to_cloudinary(photo, "children")
+    if photo_url:
+        child.photo_filename = photo_url
+
+    db.session.commit()
+    flash(f"{child.name} updated.")
+    return redirect(url_for("dashboard"))
+
+
 @app.route("/dashboard/add-section-photo", methods=["POST"])
 @login_required
 def add_section_photo():

@@ -959,4 +959,138 @@ footer {
     90%  { opacity: 0.15; }
     100% { transform: translateY(-100vh) translateX(-10px); opacity: 0; }
 }
+/* ===== Smoothness everywhere ===== */
+a, button, .pillar-card, .child-card, .gallery-item, .sponsor-btn, .give-submit-btn, .nav-links a {
+    transition: all 0.25s ease;
+}
+
+/* ===== Pillar cards feel like real buttons ===== */
+.pillar-card {
+    position: relative;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+}
+
+.pillar-card:hover {
+    transform: translateY(-6px) scale(1.02);
+    background: rgba(46, 204, 113, 0.18);
+    box-shadow: 0 12px 28px rgba(46, 204, 113, 0.25);
+    border-color: #2ecc71;
+}
+
+.pillar-arrow {
+    display: inline-block;
+    margin-top: 12px;
+    color: #2ecc71;
+    font-size: 0.85rem;
+    font-weight: bold;
+    opacity: 0.85;
+}
+
+.pillar-card:hover .pillar-arrow {
+    opacity: 1;
+    transform: translateX(4px);
+}
+
+/* ===== Decorated Bible verse slider ===== */
+.verse-slider {
+    position: relative;
+    max-width: 650px;
+    margin: 50px auto;
+    overflow: hidden;
+    border-radius: 16px;
+    border: 1px solid rgba(46, 204, 113, 0.3);
+    background: radial-gradient(circle at top, rgba(46,204,113,0.08), rgba(6,16,11,0.3));
+    padding-top: 10px;
+    padding-bottom: 10px;
+}
+
+.verse-ornament {
+    text-align: center;
+    color: rgba(46, 204, 113, 0.4);
+    font-size: 1.3rem;
+}
+
+.verse-track {
+    display: flex;
+    transition: transform 0.6s ease-in-out;
+}
+
+.verse-slide {
+    min-width: 100%;
+    box-sizing: border-box;
+    padding: 10px 55px 25px 55px;
+    text-align: center;
+    position: relative;
+}
+
+.verse-quote-mark {
+    display: block;
+    font-size: 2.5rem;
+    color: rgba(46, 204, 113, 0.4);
+    line-height: 1;
+    font-family: Georgia, serif;
+}
+
+.verse-slide p {
+    font-style: italic;
+    color: #d5f5e3;
+    font-size: 1.05rem;
+    line-height: 1.7;
+    margin-top: -10px;
+}
+
+.verse-ref {
+    display: block;
+    margin-top: 14px;
+    color: #2ecc71;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+}
+
+/* ===== Edit details/summary styling ===== */
+.edit-details {
+    margin-top: 10px;
+}
+
+.edit-details summary {
+    cursor: pointer;
+    color: #2ecc71;
+    font-size: 0.85rem;
+    font-weight: bold;
+    padding: 6px 0;
+}
+
+.edit-details summary:hover {
+    text-decoration: underline;
+}
+
+/* ===== Softer, more subtle bubbles ===== */
+.bubble {
+    opacity: 0;
+    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.35), rgba(46,204,113,0.1) 70%);
+}
+
+@keyframes rise {
+    0%   { transform: translateY(0) translateX(0); opacity: 0; }
+    10%  { opacity: 0.35; }
+    50%  { transform: translateY(-50vh) translateX(15px); opacity: 0.22; }
+    90%  { opacity: 0.08; }
+    100% { transform: translateY(-100vh) translateX(-10px); opacity: 0; }
+}
+
+/* ===== A touch more ambient decoration ===== */
+.page-section h1, .hero h1 {
+    position: relative;
+}
+
+.page-section h1::after {
+    content: "";
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #2ecc71, transparent);
+    margin: 14px auto 0 auto;
+    border-radius: 2px;
+}
+
 

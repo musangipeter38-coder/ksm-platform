@@ -101,8 +101,21 @@
                 <h3>{{ child.name }}, age {{ child.age }}</h3>
                 <p>{{ child.story }}</p>
                 <span class="sponsor-status {% if child.is_sponsored %}sponsored{% else %}available{% endif %}">
-                    {% if child.is_sponsored %}Sponsored{% else %}Needs a sponsor{% endif %}
+                    {% if child.is_sponsored %}Sponsored{% else %}Needs a sponsor{% endif %} · KES {{ child.monthly_need }}/month
                 </span>
+
+                <details class="edit-details">
+                    <summary>Edit</summary>
+                    <form action="/dashboard/edit-child/{{ child.id }}" method="POST" enctype="multipart/form-data" class="prayer-form" style="margin-top:10px;">
+                        <input type="text" name="name" value="{{ child.name }}" placeholder="Name">
+                        <input type="number" name="age" value="{{ child.age }}" placeholder="Age">
+                        <textarea name="story" rows="3">{{ child.story }}</textarea>
+                        <input type="number" name="monthly_need" value="{{ child.monthly_need }}" placeholder="Monthly need (KES)">
+                        <label class="checkbox-label">Update photo (optional):</label>
+                        <input type="file" name="photo" accept="image/*">
+                        <button type="submit" class="sponsor-btn">Save Changes</button>
+                    </form>
+                </details>
             </div>
             {% endfor %}
         </div>
